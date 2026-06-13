@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ismawati | Full-Stack Web Developer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        dark: { 950:'#030308', 900:'#050510', 800:'#0a0a1a', 700:'#0f0f22', 600:'#161635', 500:'#1e1e45' },
+                        accent: '#00ffaa',
+                        'accent-dim': '#00cc88',
+                        warm: '#ff6b35',
+                    },
+                    fontFamily: {
+                        display: ['Space Grotesk','sans-serif'],
+                        mono: ['JetBrains Mono','monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --accent: #00ffaa;
+            --accent-rgb: 0,255,170;
+            --warm: #ff6b35;
+            --warm-rgb: 255,107,53;
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'Space Grotesk',sans-serif; background:#050510; color:#e0e0f0; overflow-x:hidden; }
+
+        /* Scrollbar kustom */
+        ::-webkit-scrollbar { width:6px; }
+        ::-webkit-scrollbar-track { background:#050510; }
+        ::-webkit-scrollbar-thumb { background:rgba(var(--accent-rgb),0.3); border-radius:3px; }
+        ::-webkit-scrollbar-thumb:hover { background:rgba(var(--accent-rgb),0.5); }
+
+        /* Scroll progress bar */
+        #scroll-progress {
+            position:fixed; top:0; left:0; height:3px; z-index:9999;
+            background:linear-gradient(90deg, var(--accent), var(--warm));
+            width:0%; transition:width 0.1s linear;
+        }
+
+        /* Grid pattern halus */
+        .grid-bg {
+            background-image:
+                linear-gradient(rgba(var(--accent-rgb),0.025) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(var(--accent-rgb),0.025) 1px, transparent 1px);
+            background-size:60px 60px;
+        }
+
+        /* Canvas 3D */
+        #three-canvas {
+            position:absolute; top:0; left:0; width:100%; height:100%; z-index:0;
+        }
+
+        /* Foto profil dengan ring berputar */
+        .photo-container { position:relative; width:180px; height:180px; }
+        .photo-ring {
+            position:absolute; inset:-5px; border-radius:50%;
+            background:conic-gradient(from 0deg, var(--accent), #00aaff, var(--warm), #aa00ff, var(--accent));
+            animation:ring-spin 4s linear infinite;
+        }
+        .photo-ring::after {
+            content:''; position:absolute; inset:3px; border-radius:50%; background:#050510;
+        }
+        .photo-img {
+            position:relative; z-index:2; width:180px; height:180px; border-radius:50%;
+            object-fit:cover; border:3px solid #050510;
+        }
+        @keyframes ring-spin { to { transform:rotate(360deg); } }
+        @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-14px)} }
+        .float-anim { animation:float 4s ease-in-out infinite; }
+
+        /* Glow effect */
+        .glow-accent { box-shadow:0 0 30px rgba(var(--accent-rgb),0.15), 0 0 60px rgba(var(--accent-rgb),0.05); }
+        .text-glow { text-shadow:0 0 40px rgba(var(--accent-rgb),0.3); }
+
+        /* Navbar */
+        .nav-link { position:relative; transition:color 0.3s; }
+        .nav-link::after {
+            content:''; position:absolute; bottom:-4px; left:0; width:0; height:2px;
+            background:var(--accent); transition:width 0.3s;
+        }
+        .nav-link:hover { color:var(--accent); }
+        .nav-link:hover::after { width:100%; }
+        .nav-scrolled { background:rgba(5,5,16,0.92)!important; backdrop-filter:blur(20px); border-bottom:1px solid rgba(var(--accent-rgb),0.08); }
+
+        /* Skill bar animasi */
+        .skill-bar-fill {
+            height:100%; border-radius:9999px; width:0%;
+            background:linear-gradient(90deg, var(--accent), #00ddcc);
+            transition:width 1.2s cubic-bezier(0.22,1,0.36,1);
+            position:relative; overflow:hidden;
+        }
+        .skill-bar-fill::after {
+            content:''; position:absolute; inset:0;
+            background:linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+            animation:shimmer 2s infinite;
+        }
+        @keyframes shimmer { 0%{transform:translateX(-100%)} 100%{transform:translateX(100%)} }
+
+        /* Card 3D tilt */
+        .tilt-card {
+            transition:transform 0.15s ease-out, box-shadow 0.3s;
+            transform-style:preserve-3d; will-change:transform;
+        }
+        .tilt-card:hover { box-shadow:0 20px 60px rgba(0,0,0,0.5), 0 0 30px rgba(var(--accent-rgb),0.08); }
+
+        /* Project card image overlay */
+        .project-img-wrap { overflow:hidden; position:relative; }
+        .project-img-wrap img { transition:transform 0.5s; }
+        .project-img-wrap:hover img { transform:scale(1.08); }
+        .project-overlay {
+            position:absolute; inset:0; background:linear-gradient(to top, rgba(5,5,16,0.95) 0%, transparent 60%);
+            opacity:0; transition:opacity 0.4s; display:flex; align-items:flex-end; padding:1.2rem;
+        }
+        .project-img-wrap:hover .project-overlay { opacity:1; }
+
+        /* Scroll reveal */
+        .reveal {
+            opacity:0; transform:translateY(40px);
+            transition:opacity 0.7s cubic-bezier(0.22,1,0.36,1), transform 0.7s cubic-bezier(0.22,1,0.36,1);
+        }
+        .reveal.visible { opacity:1; transform:translateY(0); }
+        .reveal-delay-1 { transition-delay:0.1s; }
+        .reveal-delay-2 { transition-delay:0.2s; }
+        .reveal-delay-3 { transition-delay:0.3s; }
+        .reveal-delay-4 { transition-delay:0.4s; }
+        .reveal-delay-5 { transition-delay:0.5s; }
+
+        /* Typing cursor */
+        .typing-cursor::after {
+            content:'|'; animation:blink 0.8s step-end infinite; color:var(--accent);
+        }
+        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+        /* Tombol aksen */
+        .btn-accent {
+            background:linear-gradient(135deg, var(--accent), #00ddaa);
+            color:#050510; font-weight:600; border:none; cursor:pointer;
+            transition:transform 0.2s, box-shadow 0.3s;
+        }
+        .btn-accent:hover {
+            transform:translateY(-2px);
+            box-shadow:0 8px 30px rgba(var(--accent-rgb),0.35);
+        }
+        .btn-outline {
+            border:1.5px solid rgba(var(--accent-rgb),0.4); color:var(--accent);
+            background:transparent; cursor:pointer; transition:all 0.3s;
+        }
+        .btn-outline:hover {
+            background:rgba(var(--accent-rgb),0.08);
+            border-color:var(--accent); transform:translateY(-2px);
+        }
+
+        /* Sosial media icon */
+        .social-icon {
+            width:50px; height:50px; border-radius:12px; display:flex; align-items:center; justify-content:center;
+            border:1px solid rgba(var(--accent-rgb),0.15); color:#8888aa;
+            transition:all 0.3s; font-size:1.2rem;
+        }
+        .social-icon:hover {
+            color:var(--accent); border-color:var(--accent);
+            background:rgba(var(--accent-rgb),0.08);
+            transform:translateY(-4px);
+            box-shadow:0 8px 25px rgba(var(--accent-rgb),0.15);
+        }
+
+        /* Sertifikat card */
+        .cert-card {
+            background:linear-gradient(145deg, #0f0f22, #0a0a18);
+            border:1px solid rgba(var(--accent-rgb),0.06);
+            transition:all 0.3s;
+        }
+        .cert-card:hover {
+            border-color:rgba(var(--accent-rgb),0.2);
+            transform:translateY(-6px);
+            box-shadow:0 16px 50px rgba(0,0,0,0.4);
+        }
+
+        /* Section divider */
+        .section-line {
+            width:60px; height:3px; border-radius:3px;
+            background:linear-gradient(90deg, var(--accent), transparent);
+        }
+
+        /* Stat card */
+        .stat-card {
+            background:rgba(var(--accent-rgb),0.03);
+            border:1px solid rgba(var(--accent-rgb),0.08);
+            transition:all 0.3s;
+        }
+        .stat-card:hover {
+            background:rgba(var(--accent-rgb),0.06);
+            border-color:rgba(var(--accent-rgb),0.15);
+        }
+
+        /* Back to top */
+        #back-to-top {
+            position:fixed; bottom:30px; right:30px; z-index:100;
+            width:46px; height:46px; border-radius:12px;
+            background:rgba(var(--accent-rgb),0.1); border:1px solid rgba(var(--accent-rgb),0.2);
+            color:var(--accent); cursor:pointer; display:flex; align-items:center; justify-content:center;
+            opacity:0; transform:translateY(20px); transition:all 0.3s; font-size:1.1rem;
+        }
+        #back-to-top.show { opacity:1; transform:translateY(0); }
+        #back-to-top:hover { background:rgba(var(--accent-rgb),0.2); transform:translateY(-3px); }
+
+        /* Mobile menu */
+        .mobile-menu {
+            position:fixed; inset:0; z-index:200; background:rgba(5,5,16,0.97);
+            backdrop-filter:blur(20px); display:flex; flex-direction:column;
+            align-items:center; justify-content:center; gap:2rem;
+            opacity:0; pointer-events:none; transition:opacity 0.3s;
+        }
+        .mobile-menu.open { opacity:1; pointer-events:all; }
+        .mobile-menu a { font-size:1.5rem; color:#e0e0f0; transition:color 0.3s; }
+        .mobile-menu a:hover { color:var(--accent); }
+
+        /* Reduced motion */
+        @media (prefers-reduced-motion:reduce) {
+            *, *::before, *::after { animation-duration:0.01ms!important; transition-duration:0.01ms!important; }
+            .reveal { opacity:1; transform:none; }
+        }
+    </style>
+</head>
+<body class="grid-bg">
+
+    <!-- Scroll Progress -->
+    <div id="scroll-progress" aria-hidden="true"></div>
+
+    <!-- Navbar -->
+    <nav id="navbar" class="fixed top-0 left-0 w-full z-50 transition-all duration-300" role="navigation" aria-label="Navigasi utama">
+        <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+            <a href="#hero" class="font-mono text-lg font-semibold tracking-tight" style="color:var(--accent)">
+                &lt;PORTOFOLIO/&gt;
+            </a>
+            <div class="hidden md:flex items-center gap-8">
+                <a href="#about" class="nav-link text-sm text-gray-400">Tentang</a>
+                <a href="#skills" class="nav-link text-sm text-gray-400">Keahlian</a>
+                <a href="#projects" class="nav-link text-sm text-gray-400">Project</a>
+                <a href="#certificates" class="nav-link text-sm text-gray-400">Sertifikat</a>
+                <a href="#contact" class="nav-link text-sm text-gray-400">Kontak</a>
+            </div>
+            <button id="menu-toggle" class="md:hidden text-gray-400 text-xl" aria-label="Buka menu">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="mobile-menu" role="dialog" aria-label="Menu navigasi">
+        <button id="menu-close" class="absolute top-6 right-6 text-2xl text-gray-400" aria-label="Tutup menu">
+            <i class="fas fa-times"></i>
+        </button>
+        <a href="#about" class="mobile-nav-link">Tentang</a>
+        <a href="#skills" class="mobile-nav-link">Keahlian</a>
+        <a href="#projects" class="mobile-nav-link">Project</a>
+        <a href="#certificates" class="mobile-nav-link">Sertifikat</a>
+        <a href="#contact" class="mobile-nav-link">Kontak</a>
+    </div>
+
+    <!-- HERO SECTION -->
+    <section id="hero" class="relative min-h-screen flex flex-col items-center justify-center px-6 overflow-hidden">
+        <canvas id="three-canvas" aria-hidden="true"></canvas>
+        <!-- Gradient overlay bawah -->
+        <div class="absolute bottom-0 left-0 w-full h-40 bg-gradient-to-t from-dark-900 to-transparent z-10 pointer-events-none"></div>
+
+        <div class="relative z-20 text-center flex flex-col items-center">
+            <!-- Foto Profil -->
+            <div class="photo-container float-anim mb-8 reveal">
+                <div class="photo-ring"></div>
+                <img src="img/MyPicture/foto sima.jpeg" alt="Foto profil Isma Wati" class="photo-img">
+            </div>
+
+            <!-- Nama -->
+            <h1 class="text-4xl sm:text-5xl md:text-7xl font-bold tracking-tight mb-4 reveal reveal-delay-1">
+                Isma<span style="color:var(--accent)" class="text-glow">wati</span>
+            </h1>
+
+            <!-- Typing effect -->
+            <p class="font-mono text-base sm:text-lg md:text-xl text-gray-400 mb-6 reveal reveal-delay-2">
+                <span id="typing-text" class="typing-cursor"></span>
+            </p>
+
+            <!-- Deskripsi -->
+            <p class="max-w-xl text-gray-500 text-sm sm:text-base leading-relaxed mb-10 reveal reveal-delay-3">
+                Membangun pengalaman digital yang luar biasa melalui kode yang bersih, arsitektur yang kuat, dan desain yang memukau.
+            </p>
+
+            <!-- CTA Buttons -->
+            <div class="flex flex-wrap gap-4 justify-center reveal reveal-delay-4">
+                <a href="#projects" class="btn-accent px-7 py-3 rounded-xl text-sm">Lihat Project</a>
+                <a href="#contact" class="btn-outline px-7 py-3 rounded-xl text-sm">Hubungi Saya</a>
+            </div>
+        </div>
+
+        <!-- Scroll indicator -->
+        <div class="absolute bottom-10 z-20 flex flex-col items-center gap-2 opacity-40">
+            <span class="text-xs font-mono text-gray-500">scroll</span>
+            <div class="w-px h-8 bg-gradient-to-b from-gray-500 to-transparent animate-pulse"></div>
+        </div>
+    </section>
+
+    <main>
+        <!-- ABOUT SECTION -->
+        <section id="about" class="py-24 px-6">
+            <div class="max-w-6xl mx-auto">
+                <div class="text-center mb-16">
+                    <p class="font-mono text-sm mb-3 reveal" style="color:var(--accent)">01. TENTANG SAYA</p>
+                    <h2 class="text-3xl sm:text-4xl font-bold reveal reveal-delay-1">Mengenal Lebih Dekat</h2>
+                    <div class="section-line mx-auto mt-4 reveal reveal-delay-2"></div>
+                </div>
+                <div class="grid md:grid-cols-2 gap-12 items-center">
+                    <div class="reveal reveal-delay-1">
+                        <p class="text-gray-400 leading-relaxed mb-5">
+                            Saya adalah seorang Full-Stack Web Developer dengan pengalaman lebih dari 2 tahun dalam membangun aplikasi web modern. Perjalanan saya dimulai dari rasa penasaran sederhana terhadap bagaimana website bekerja, dan kini telah berkembang menjadi keahlian yang mencakup seluruh stack teknologi.
+                        </p>
+                        <p class="text-gray-400 leading-relaxed mb-5">
+                            Saya percaya bahwa kode yang baik bukan hanya tentang fungsionalitas, tetapi juga tentang keterbacaan, skalabilitas, dan pengalaman pengguna yang luar biasa. Setiap baris kode yang saya tulis mencerminkan komitmen saya terhadap kualitas.
+                        </p>
+                        <p class="text-gray-400 leading-relaxed">
+                            Di luar coding, saya aktif berkontribusi pada proyek open-source dan senang berbagi pengetahuan dengan orang lain.
+                        </p>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4 reveal reveal-delay-2">
+                        <div class="stat-card rounded-2xl p-6 text-center">
+                            <div class="text-3xl font-bold mb-1" style="color:var(--accent)">2+</div>
+                            <div class="text-xs text-gray-500 font-mono uppercase tracking-wider">Tahun Pengalaman</div>
+                        </div>
+                        <div class="stat-card rounded-2xl p-6 text-center">
+                            <div class="text-3xl font-bold mb-1" style="color:var(--accent)">10+</div>
+                            <div class="text-xs text-gray-500 font-mono uppercase tracking-wider">Project Selesai</div>
+                        </div>
+                        <div class="stat-card rounded-2xl p-6 text-center">
+                            <div class="text-3xl font-bold mb-1" style="color:var(--accent)">5+</div>
+                            <div class="text-xs text-gray-500 font-mono uppercase tracking-wider">Klien Puas</div>
+                        </div>
+                        <div class="stat-card rounded-2xl p-6 text-center">
+                            <div class="text-3xl font-bold mb-1" style="color:var(--accent)">5+</div>
+                            <div class="text-xs text-gray-500 font-mono uppercase tracking-wider">Sertifikat</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SKILLS SECTION -->
+        <section id="skills" class="py-24 px-6">
+            <div class="max-w-6xl mx-auto">
+                <div class="text-center mb-16">
+                    <p class="font-mono text-sm mb-3 reveal" style="color:var(--accent)">02. KEAHLIAN</p>
+                    <h2 class="text-3xl sm:text-4xl font-bold reveal reveal-delay-1">Tech Stack Saya</h2>
+                    <div class="section-line mx-auto mt-4 reveal reveal-delay-2"></div>
+                </div>
+                <div class="grid sm:grid-cols-2 gap-x-12 gap-y-7 max-w-4xl mx-auto" id="skills-grid">
+                    <!-- Skill items di-generate oleh JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- PROJECTS SECTION -->
+        <section id="projects" class="py-24 px-6">
+            <div class="max-w-6xl mx-auto">
+                <div class="text-center mb-16">
+                    <p class="font-mono text-sm mb-3 reveal" style="color:var(--accent)">03. PROJECT</p>
+                    <h2 class="text-3xl sm:text-4xl font-bold reveal reveal-delay-1">Karya Terbaru</h2>
+                    <div class="section-line mx-auto mt-4 reveal reveal-delay-2"></div>
+                </div>
+                <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6" id="projects-grid">
+                    <!-- Project cards di-generate oleh JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- CERTIFICATES SECTION -->
+        <section id="certificates" class="py-24 px-6">
+            <div class="max-w-6xl mx-auto">
+                <div class="text-center mb-16">
+                    <p class="font-mono text-sm mb-3 reveal" style="color:var(--accent)">04. SERTIFIKAT</p>
+                    <h2 class="text-3xl sm:text-4xl font-bold reveal reveal-delay-1">Pencapaian Saya</h2>
+                    <div class="section-line mx-auto mt-4 reveal reveal-delay-2"></div>
+                </div>
+                <div class="grid sm:grid-cols-2 gap-6 max-w-4xl mx-auto" id="certs-grid">
+                    <!-- Cert cards di-generate oleh JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- CONTACT SECTION -->
+        <section id="contact" class="py-24 px-6">
+            <div class="max-w-4xl mx-auto text-center">
+                <p class="font-mono text-sm mb-3 reveal" style="color:var(--accent)">05. KONTAK</p>
+                <h2 class="text-3xl sm:text-4xl font-bold mb-4 reveal reveal-delay-1">Mari Bekerja Sama</h2>
+                <div class="section-line mx-auto mt-4 mb-10 reveal reveal-delay-2"></div>
+                <p class="text-gray-400 mb-12 max-w-lg mx-auto reveal reveal-delay-3">
+                    Tertarik untuk berkolaborasi atau punya project yang menarik? Jangan ragu untuk menghubungi saya melalui media sosial di bawah ini.
+                </p>
+                <div class="flex flex-wrap gap-4 justify-center reveal reveal-delay-4" id="social-links">
+                    <!-- Social links di-generate oleh JS -->
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="border-t border-dark-600 py-8 px-6">
+        <div class="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+            <p class="text-gray-600 text-sm font-mono">&copy; 2026 Ismawati. All rights reserved.</p>
+            <p class="text-gray-700 text-xs font-mono">Dibangun dengan <span style="color:var(--accent)">&hearts;</span> dan banyak belajar</p>
+        </div>
+    </footer>
+
+    <!-- Back to Top -->
+    <button id="back-to-top" aria-label="Kembali ke atas">
+        <i class="fas fa-chevron-up"></i>
+    </button>
+
+    <!-- Three.js Import Map -->
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+            "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+        }
+    }
+    </script>
+
+    <!-- Three.js Particle Scene -->
+    <script type="module">
+        import * as THREE from 'three';
+
+        const canvas = document.getElementById('three-canvas');
+        const heroSection = document.getElementById('hero');
+
+        // Renderer
+        const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.setSize(heroSection.clientWidth, heroSection.clientHeight);
+
+        // Scene & Kamera
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(60, heroSection.clientWidth / heroSection.clientHeight, 0.1, 1000);
+        camera.position.z = 30;
+
+        // Membuat tekstur partikel bulat bercahaya
+        function createParticleTexture() {
+            const size = 64;
+            const c = document.createElement('canvas');
+            c.width = size; c.height = size;
+            const ctx = c.getContext('2d');
+            const grad = ctx.createRadialGradient(size/2, size/2, 0, size/2, size/2, size/2);
+            grad.addColorStop(0, 'rgba(255,255,255,1)');
+            grad.addColorStop(0.2, 'rgba(255,255,255,0.8)');
+            grad.addColorStop(0.5, 'rgba(255,255,255,0.3)');
+            grad.addColorStop(1, 'rgba(255,255,255,0)');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, size, size);
+            return new THREE.CanvasTexture(c);
+        }
+
+        const particleTexture = createParticleTexture();
+
+        // Data partikel
+        const particleCount = 2200;
+        const positions = new Float32Array(particleCount * 3);
+        const colors = new Float32Array(particleCount * 3);
+        const sizes = new Float32Array(particleCount);
+        const speeds = new Float32Array(particleCount);
+
+        const accentColor = new THREE.Color(0x00ffaa);
+        const whiteColor = new THREE.Color(0xffffff);
+        const warmColor = new THREE.Color(0xff6b35);
+        const blueColor = new THREE.Color(0x00aaff);
+
+        for (let i = 0; i < particleCount; i++) {
+            // Distribusi bola dengan variasi
+            const radius = Math.max(0.1, 20 + Math.random() * 25);
+            const theta = Math.random() * Math.PI * 2;
+            const phi = Math.acos(2 * Math.random() - 1);
+
+            positions[i * 3] = radius * Math.sin(phi) * Math.cos(theta);
+            positions[i * 3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
+            positions[i * 3 + 2] = radius * Math.cos(phi);
+
+            // Warna acak dari palet
+            const rand = Math.random();
+            let col;
+            if (rand < 0.5) col = accentColor.clone().lerp(whiteColor, Math.random() * 0.4);
+            else if (rand < 0.7) col = whiteColor.clone();
+            else if (rand < 0.85) col = blueColor.clone().lerp(whiteColor, 0.3);
+            else col = warmColor.clone().lerp(whiteColor, 0.5);
+
+            colors[i * 3] = col.r;
+            colors[i * 3 + 1] = col.g;
+            colors[i * 3 + 2] = col.b;
+
+            sizes[i] = Math.max(0.1, 0.3 + Math.random() * 2.5);
+            speeds[i] = 0.2 + Math.random() * 0.8;
+        }
+
+        const geometry = new THREE.BufferGeometry();
+        geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        geometry.setAttribute('aParticleColor', new THREE.BufferAttribute(colors, 3));
+        geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+
+        // Shader material kustom untuk partikel dengan ukuran bervariasi
+        const material = new THREE.ShaderMaterial({
+            uniforms: {
+                uTexture: { value: particleTexture },
+                uTime: { value: 0 },
+            },
+            vertexShader: `
+                attribute float size;
+                attribute vec3 aParticleColor;
+                varying vec3 vColor;
+                varying float vAlpha;
+                uniform float uTime;
+                void main() {
+                    vColor = aParticleColor;
+                    vec3 pos = position;
+                    // Gerakan mengambang halus
+                    pos.x += sin(uTime * 0.3 + position.y * 0.1) * 0.5;
+                    pos.y += cos(uTime * 0.2 + position.z * 0.1) * 0.5;
+                    pos.z += sin(uTime * 0.25 + position.x * 0.1) * 0.3;
+                    vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
+                    gl_PointSize = size * (200.0 / -mvPosition.z);
+                    gl_PointSize = max(gl_PointSize, 0.5);
+                    gl_Position = projectionMatrix * mvPosition;
+                    // Partikel jauh lebih redup
+                    vAlpha = smoothstep(80.0, 10.0, -mvPosition.z);
+                }
+            `,
+            fragmentShader: `
+                uniform sampler2D uTexture;
+                varying vec3 vColor;
+                varying float vAlpha;
+                void main() {
+                    vec4 texColor = texture2D(uTexture, gl_PointCoord);
+                    gl_FragColor = vec4(vColor, texColor.a * vAlpha * 0.7);
+                }
+            `,
+            transparent: true,
+            depthWrite: false,
+            blending: THREE.AdditiveBlending,
+        });
+
+        const particles = new THREE.Points(geometry, material);
+        scene.add(particles);
+
+        // Wireframe icosahedron di tengah
+        const icoGeo = new THREE.IcosahedronGeometry(Math.max(0.1, 5), 1);
+        const icoMat = new THREE.MeshBasicMaterial({
+            color: 0x00ffaa, wireframe: true, transparent: true, opacity: 0.06
+        });
+        const icoMesh = new THREE.Mesh(icoGeo, icoMat);
+        scene.add(icoMesh);
+
+        // Wireframe torus
+        const torusGeo = new THREE.TorusGeometry(Math.max(0.1, 8), Math.max(0.01, 0.3), 16, 60);
+        const torusMat = new THREE.MeshBasicMaterial({
+            color: 0xff6b35, wireframe: true, transparent: true, opacity: 0.04
+        });
+        const torusMesh = new THREE.Mesh(torusGeo, torusMat);
+        torusMesh.rotation.x = Math.PI / 3;
+        scene.add(torusMesh);
+
+        // Mouse tracking
+        let mouseX = 0, mouseY = 0;
+        let targetMouseX = 0, targetMouseY = 0;
+        document.addEventListener('mousemove', (e) => {
+            targetMouseX = (e.clientX / window.innerWidth - 0.5) * 2;
+            targetMouseY = (e.clientY / window.innerHeight - 0.5) * 2;
+        });
+
+        // Resize
+        function onResize() {
+            const w = heroSection.clientWidth;
+            const h = heroSection.clientHeight;
+            camera.aspect = w / h;
+            camera.updateProjectionMatrix();
+            renderer.setSize(w, h);
+        }
+        window.addEventListener('resize', onResize);
+
+        // Animasi loop
+        const clock = new THREE.Clock();
+        function animate() {
+            requestAnimationFrame(animate);
+            const elapsed = clock.getElapsedTime();
+
+            material.uniforms.uTime.value = elapsed;
+
+            // Rotasi halus seluruh partikel
+            particles.rotation.y = elapsed * 0.03 + mouseX * 0.15;
+            particles.rotation.x = elapsed * 0.02 + mouseY * 0.1;
+
+            // Rotasi geometri
+            icoMesh.rotation.x = elapsed * 0.15;
+            icoMesh.rotation.y = elapsed * 0.2;
+            torusMesh.rotation.z = elapsed * 0.08;
+
+            // Smooth mouse follow
+            mouseX += (targetMouseX - mouseX) * 0.05;
+            mouseY += (targetMouseY - mouseY) * 0.05;
+
+            renderer.render(scene, camera);
+        }
+        animate();
+    </script>
+
+    <!-- Main JavaScript -->
+    <script>
+        // === DATA ===
+
+        // Data keahlian
+        const skillsData = [
+            { name:'HTML',        icon:'fa-brands fa-html5',     pct:85, color:'#e34f26' },
+            { name:'CSS',         icon:'fa-brands fa-css3-alt',  pct:80, color:'#1572b6' },
+            { name:'JavaScript',  icon:'fa-brands fa-js',        pct:60, color:'#f7df1e' },
+            { name:'React',       icon:'fa-brands fa-react',     pct:54, color:'#61dafb' },
+            { name:'Node.js',     icon:'fa-brands fa-node-js',   pct:50, color:'#339933' },
+            { name:'Express.js',  icon:'fa-solid fa-server',     pct:47, color:'#ffffff' },
+            { name:'MySQL',       icon:'fa-solid fa-database',   pct:45, color:'#4479a1' },
+            { name:'PostgreSQL',  icon:'fa-solid fa-database',   pct:40, color:'#336791' },
+            { name:'Python',      icon:'fa-brands fa-python',    pct:60, color:'#3776ab' },
+            { name:'PHP',         icon:'fa-brands fa-php',       pct:51, color:'#777bb4' },
+        ];
+
+        // Data project
+        const projectsData = [
+            {
+                title:'FinNice Pengelola Keuangan Cerdas',
+                desc:'Aplikasi pengelola keuangan cerdas dengan fitur AI dan Dashboard pintar',
+                img:'img/Project/FinNice.png',
+                tags:['React','Node.js','PostgreSQL','Express.js'],
+                link:'https://frontend-isma05s-projects.vercel.app/'
+            },
+            {
+                title:'Website UMKM Jongolsari',
+                desc:'Platform e-commerce full-featured dengan sistem pembayaran, manajemen inventori, dan dashboard admin.',
+                img:'img/Project/UMKM-Gula-Jongolsari.png',
+                tags:['HTML','PHP','MySQL','Python'],
+                link:'https://github.com/Isma0505/UMKM-Gula-Jawa.git'
+            },
+            {
+                title:'Fashion Store untuk UMKM',
+                desc:'Aplikasi social media dengan fitur posting, komentar, messenger, dan notifikasi real-time.',
+                img:'img/Project/FashionStore.png',
+                tags:['PHP','MySQL','HTML','CSS'],
+                link:'https://github.com/Isma0505/FashionStore.git'
+            },
+            {
+                title:'PortoGen Builder',
+                desc:'Generator portfolio otomatis yang memungkinkan pengguna membuat website portfolio tanpa coding.',
+                img:'https://picsum.photos/seed/portogen33/600/400.jpg',
+                tags:['React','Node.js','MongoDB','Tailwind'],
+                link:'#'
+            },
+            {
+                title:'TaskFlow Manager',
+                desc:'Aplikasi manajemen tugas kolaboratif dengan fitur Kanban board, deadline tracking, dan tim management.',
+                img:'https://picsum.photos/seed/taskflow22/600/400.jpg',
+                tags:['Express.js','PostgreSQL','React','Socket.io'],
+                link:'#'
+            },
+            {
+                title:'WriteBlog Platform',
+                desc:'Platform blog dengan editor Markdown, sistem komentar, SEO optimization, dan multi-author support.',
+                img:'https://picsum.photos/seed/blogplat44/600/400.jpg',
+                tags:['Python','PostgreSQL','Flask','JavaScript'],
+                link:'#'
+            },
+        ];
+
+        // Data sertifikat
+        const certsData = [
+            {
+                title:'Belajar Front-End Web Developer',
+                issuer:'Dicoding Indonesia',
+                date:'8 Maret 2026',
+                img:'img/Certificate/sertifikat_frontend.jpg',
+                badge:'fa-brands fa-meta'
+            },
+            {
+                title:'Belajar Cloud dan Gen AI di AWS',
+                issuer:'Dicoding Indonesia',
+                date:'11 Februari 2026',
+                img:'img/Certificate/Belajar Clude dan Gen Ai di AWS.jpg',
+                badge:'fa-brands fa-aws'
+            },
+            {
+                title:'Belajar Fundamental dengan React',
+                issuer:'Dicoding Indonesia',
+                date:'29 Maret 2026',
+                img:'img/Certificate/Sertifikat Belajar Fundamental dengan React.jpg',
+                badge:'fa-brands fa-react'
+            },
+            {
+                title:'Belajar Fundamental Backend JavaScript',
+                issuer:'Dicoding Indonesia',
+                date:'21 April 2026',
+                img:'img/Certificate/sertifikat belajar fundamental backend javascript.jpg',
+                badge:'fa-brands fa-node-js'
+            },
+            {
+                title:'Belajar Web Aplication Development',
+                issuer:'Teknik Informatika UNSIQ',
+                date:'9 Juni 2026',
+                img:'img/Certificate/AddClass.jpg',
+                badge:'fa-solid fa-code'
+            },
+            {
+                title:'Belajar Membuat Aplikasi Web dengan React',
+                issuer:'Dicoding Indonesia',
+                date:'17 Maret 2026',
+                img:'img/Certificate/Sertifikat react-images-0.jpg',
+                badge:'fa-brands fa-react'
+            },
+            {
+                title:'Belajar Dasar Pemrograman Web',
+                issuer:'Dicoding Indonesia',
+                date:'12 Februari 2026',
+                img:'img/Certificate/Sertifikat_Dicoding_PemrogramanWeb.jpg',
+                badge:'fa-brands fa-html5'
+            },
+            {
+                title:'Belajar Backend dengan JavaScript',
+                issuer:'Dicoding Indonesia',
+                date:'11 April 2026',
+                img:'img/Certificate/belajar Back End dengan JavaScript.jpg',
+                badge:'fa-brands fa-js'
+            },
+            
+        ];
+
+        // Data sosial media
+        const socialsData = [
+            { name:'LinkedIn',   icon:'fa-brands fa-linkedin-in', url:'https://www.linkedin.com/in/isma-wati-b6926b3a8/',  color:'#0077b5' },
+            { name:'GitHub',     icon:'fa-brands fa-github',      url:'https://github.com/Isma0505',      color:'#f0f0f0' },
+            { name:'Instagram',  icon:'fa-brands fa-instagram',   url:'https://instagram.com/shanlan0515',   color:'#e4405f' },
+            { name:'Facebook',   icon:'fa-brands fa-facebook-f',  url:'https://www.facebook.com/isma.s.l.35?rdid=I4WBDjHr79n4fEwD&share_url=https%3A%2F%2Fwww.facebook.com%2Fshare%2F1CRQ7DYczx%2F',    color:'#1877f2' },
+            { name:'WhatsApp',   icon:'fa-brands fa-whatsapp',    url:'https://wa.me/6285742667155?text=Halo%20saya%20tertarik%20dengan%20portofolio%20Anda',           color:'#25d366' },
+        ];
+
+        // === RENDER FUNCTIONS ===
+
+        // Render skill bars
+        function renderSkills() {
+            const grid = document.getElementById('skills-grid');
+            skillsData.forEach((skill, i) => {
+                const el = document.createElement('div');
+                el.className = `reveal reveal-delay-${Math.min(i % 2 + 1, 5)} skill-item`;
+                el.innerHTML = `
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="flex items-center gap-3">
+                            <i class="${skill.icon} text-lg" style="color:${skill.color};width:24px;text-align:center;"></i>
+                            <span class="text-sm font-medium text-gray-200">${skill.name}</span>
+                        </div>
+                        <span class="font-mono text-xs font-semibold" style="color:var(--accent)">${skill.pct}%</span>
+                    </div>
+                    <div class="w-full h-2 rounded-full" style="background:rgba(var(--accent-rgb),0.08);">
+                        <div class="skill-bar-fill" data-pct="${skill.pct}" style="background:linear-gradient(90deg, ${skill.color}88, ${skill.color});"></div>
+                    </div>
+                `;
+                grid.appendChild(el);
+            });
+        }
+
+        // Render project cards
+        function renderProjects() {
+            const grid = document.getElementById('projects-grid');
+            projectsData.forEach((proj, i) => {
+                const el = document.createElement('article');
+                el.className = `tilt-card reveal reveal-delay-${Math.min(i + 1, 5)} rounded-2xl overflow-hidden cursor-pointer`;
+                el.style.cssText = 'background:linear-gradient(160deg,#0f0f22,#0a0a18);border:1px solid rgba(0,255,170,0.06);';
+                el.innerHTML = `
+                    <div class="project-img-wrap h-48">
+                        <img src="${proj.img}" alt="Screenshot ${proj.title}" class="w-full h-full object-cover" loading="lazy">
+                        <div class="project-overlay">
+                            <a href="${proj.link}" target="_blank" rel="noopener" class="btn-accent px-4 py-2 rounded-lg text-xs inline-flex items-center gap-2">
+                                <i class="fas fa-external-link-alt"></i> Kunjungi Website
+                            </a>
+                        </div>
+                    </div>
+                    <div class="p-5">
+                        <h3 class="font-semibold text-gray-100 mb-2">${proj.title}</h3>
+                        <p class="text-gray-500 text-sm leading-relaxed mb-4">${proj.desc}</p>
+                        <div class="flex flex-wrap gap-2">
+                            ${proj.tags.map(t => `<span class="font-mono text-xs px-2.5 py-1 rounded-md" style="background:rgba(var(--accent-rgb),0.06);color:var(--accent);border:1px solid rgba(var(--accent-rgb),0.1);">${t}</span>`).join('')}
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(el);
+            });
+        }
+
+        // Render sertifikat
+        function renderCerts() {
+            const grid = document.getElementById('certs-grid');
+            certsData.forEach((cert, i) => {
+                const el = document.createElement('div');
+                el.className = `cert-card tilt-card rounded-2xl overflow-hidden reveal reveal-delay-${Math.min(i + 1, 5)}`;
+                el.innerHTML = `
+                    <div class="h-40 overflow-hidden">
+                        <img src="${cert.img}" alt="Sertifikat ${cert.title}" class="w-full h-full object-cover" loading="lazy">
+                    </div>
+                    <div class="p-5">
+                        <div class="flex items-start gap-3 mb-3">
+                            <div class="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0" style="background:rgba(var(--accent-rgb),0.08);">
+                                <i class="${cert.badge}" style="color:var(--accent);"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-semibold text-gray-100 text-sm leading-snug">${cert.title}</h3>
+                                <p class="text-gray-500 text-xs mt-1">${cert.issuer}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2 text-xs text-gray-600">
+                            <i class="far fa-calendar-alt"></i>
+                            <span class="font-mono">${cert.date}</span>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(el);
+            });
+        }
+
+        // Render sosial media
+        function renderSocials() {
+            const container = document.getElementById('social-links');
+            socialsData.forEach(s => {
+                const a = document.createElement('a');
+                a.href = s.url;
+                a.target = '_blank';
+                a.rel = 'noopener noreferrer';
+                a.className = 'social-icon';
+                a.setAttribute('aria-label', s.name);
+                a.title = s.name;
+                a.innerHTML = `<i class="${s.icon}"></i>`;
+                container.appendChild(a);
+            });
+        }
+
+        // === TYPING EFFECT ===
+        function startTyping() {
+            const el = document.getElementById('typing-text');
+            const phrases = [
+                'Full-Stack Web Developer',
+                'React Specialist',
+                'Node.js Enthusiast',
+                'UI/UX Focused Coder',
+                'Problem Solver'
+            ];
+            let phraseIdx = 0, charIdx = 0, isDeleting = false;
+
+            function tick() {
+                const current = phrases[phraseIdx];
+                if (isDeleting) {
+                    el.textContent = current.substring(0, charIdx - 1);
+                    charIdx--;
+                } else {
+                    el.textContent = current.substring(0, charIdx + 1);
+                    charIdx++;
+                }
+
+                let delay = isDeleting ? 35 : 70;
+
+                if (!isDeleting && charIdx === current.length) {
+                    delay = 2200;
+                    isDeleting = true;
+                } else if (isDeleting && charIdx === 0) {
+                    isDeleting = false;
+                    phraseIdx = (phraseIdx + 1) % phrases.length;
+                    delay = 400;
+                }
+
+                setTimeout(tick, delay);
+            }
+            tick();
+        }
+
+        // === SCROLL REVEAL ===
+        function initScrollReveal() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+
+                        // Animasi skill bar jika ada di dalam elemen
+                        const bars = entry.target.querySelectorAll('.skill-bar-fill');
+                        bars.forEach(bar => {
+                            const pct = bar.getAttribute('data-pct');
+                            setTimeout(() => { bar.style.width = pct + '%'; }, 200);
+                        });
+
+                        // Jika elemen sendiri adalah skill item
+                        if (entry.target.classList.contains('skill-item')) {
+                            const bar = entry.target.querySelector('.skill-bar-fill');
+                            if (bar) {
+                                const pct = bar.getAttribute('data-pct');
+                                setTimeout(() => { bar.style.width = pct + '%'; }, 300);
+                            }
+                        }
+                    }
+                });
+            }, { threshold: 0.15, rootMargin: '0px 0px -50px 0px' });
+
+            document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+        }
+
+        // === NAVBAR SCROLL ===
+        function initNavbar() {
+            const nav = document.getElementById('navbar');
+            const progress = document.getElementById('scroll-progress');
+            const backToTop = document.getElementById('back-to-top');
+
+            window.addEventListener('scroll', () => {
+                const scrollY = window.scrollY;
+                const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+                const scrollPct = (scrollY / docHeight) * 100;
+
+                // Navbar background
+                if (scrollY > 60) nav.classList.add('nav-scrolled');
+                else nav.classList.remove('nav-scrolled');
+
+                // Progress bar
+                progress.style.width = scrollPct + '%';
+
+                // Back to top
+                if (scrollY > 500) backToTop.classList.add('show');
+                else backToTop.classList.remove('show');
+            });
+
+            backToTop.addEventListener('click', () => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        }
+
+        // === MOBILE MENU ===
+        function initMobileMenu() {
+            const toggle = document.getElementById('menu-toggle');
+            const menu = document.getElementById('mobile-menu');
+            const close = document.getElementById('menu-close');
+            const links = menu.querySelectorAll('a');
+
+            toggle.addEventListener('click', () => menu.classList.add('open'));
+            close.addEventListener('click', () => menu.classList.remove('open'));
+            links.forEach(l => l.addEventListener('click', () => menu.classList.remove('open')));
+        }
+
+        // === 3D TILT EFFECT ===
+        function initTiltEffect() {
+            document.querySelectorAll('.tilt-card').forEach(card => {
+                card.addEventListener('mousemove', (e) => {
+                    const rect = card.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    const cx = rect.width / 2;
+                    const cy = rect.height / 2;
+                    const rotX = ((y - cy) / cy) * -6;
+                    const rotY = ((x - cx) / cx) * 6;
+                    card.style.transform = `perspective(800px) rotateX(${rotX}deg) rotateY(${rotY}deg) scale3d(1.02,1.02,1.02)`;
+                });
+                card.addEventListener('mouseleave', () => {
+                    card.style.transform = 'perspective(800px) rotateX(0) rotateY(0) scale3d(1,1,1)';
+                });
+            });
+        }
+
+        // === SMOOTH SCROLL untuk nav links ===
+        function initSmoothScroll() {
+            document.querySelectorAll('a[href^="#"]').forEach(a => {
+                a.addEventListener('click', (e) => {
+                    const target = document.querySelector(a.getAttribute('href'));
+                    if (target) {
+                        e.preventDefault();
+                        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                });
+            });
+        }
+
+        // === INIT ===
+        document.addEventListener('DOMContentLoaded', () => {
+            renderSkills();
+            renderProjects();
+            renderCerts();
+            renderSocials();
+            startTyping();
+
+            // Delay sedikit agar elemen sudah di-render sebelum observer dijalankan
+            requestAnimationFrame(() => {
+                initScrollReveal();
+                initTiltEffect();
+            });
+
+            initNavbar();
+            initMobileMenu();
+            initSmoothScroll();
+        });
+    </script>
+</body>
+</html>
